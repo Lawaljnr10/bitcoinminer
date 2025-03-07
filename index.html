@@ -156,6 +156,9 @@
     <input type="password" id="login-password" placeholder="Password">
     <button onclick="login()">Login 🔑</button>
     <p>Don't have an account? <button onclick="showSignupForm()">Sign Up</button></p>
+    <p class="instructions">
+      Want to install this app on Android? <a href="http://www.appcreator24.com/app3513446-wm7ob8" target="_blank" style="color:#FFD700;">Click here</a>.
+    </p>
   </div>
 
   <!-- Sign Up Section -->
@@ -220,9 +223,8 @@
     const miningDuration = 10 * 60 * 1000; // 10 minutes
     const minWithdrawal = 0.000500000000;
     
-    // Admin credentials (hidden as hash)
+    // Admin credentials (hidden using a simple hash)
     const adminUsername = "Lawaljnr10";
-    // Using a simple hash function for demonstration (not secure for production)
     function simpleHash(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -231,7 +233,6 @@
       }
       return hash;
     }
-    // Store the hashed password for the admin account
     const adminPasswordHash = simpleHash("Lawaljnr10@");
 
     // Utility: Format BTC value with 12 decimals and coin emoji.
@@ -244,6 +245,7 @@
       let seconds = Math.floor((ms % (60 * 1000)) / 1000);
       return "⏰" + minutes + ":" + (seconds < 10 ? "0" + seconds : seconds) + "⏰";
     }
+    
     // Helper: Load user details from localStorage.
     function loadUserDetails() {
       return JSON.parse(localStorage.getItem("userDetails") || "{}");
@@ -252,6 +254,7 @@
     function saveUserDetails(details) {
       localStorage.setItem("userDetails", JSON.stringify(details));
     }
+    
     // Show/hide sections
     function showSection(id) {
       const sections = document.querySelectorAll(".section");
@@ -260,7 +263,7 @@
     }
     function showSignupForm() { showSection("signup-section"); }
     function backToLogin() { showSection("login-section"); }
-
+    
     // SIGN-UP FUNCTION (UPDATED VALIDATION)
     function signup() {
       const username = document.getElementById("signup-username").value.trim();
@@ -302,7 +305,7 @@
       alert("Sign up successful! You can now log in.");
       backToLogin();
     }
-
+    
     // LOGIN FUNCTION (UPDATED VALIDATION FOR ADMIN)
     function login() {
       const username = document.getElementById("login-username").value.trim();
@@ -339,7 +342,7 @@
       }
       document.getElementById("btc-count").innerText = formatBTC(btcCount);
     }
-
+    
     // LOGOUT FUNCTION
     function logout() {
       alert("You have logged out successfully.");
@@ -348,7 +351,7 @@
       document.getElementById("login-username").value = "";
       document.getElementById("login-password").value = "";
     }
-
+    
     // START MINING FUNCTION
     function startMining() {
       if (!currentUser) {
@@ -382,7 +385,7 @@
         alert("Mining session complete. Total mined BTC: " + btcCount.toFixed(12));
       }, miningDuration);
     }
-
+    
     // STOP MINING FUNCTION
     function stopMining(manualStop = false) {
       clearInterval(miningInterval);
@@ -396,7 +399,7 @@
       localStorage.setItem("btcCount_" + currentUser, btcCount);
       document.getElementById("start-mining-btn").disabled = false;
     }
-
+    
     // UPDATE USER WITHDRAWAL HISTORY
     function updateUserWithdrawalHistory() {
       let allRequests = JSON.parse(localStorage.getItem("withdrawalRequests") || "[]");
@@ -413,7 +416,7 @@
         listElem.appendChild(li);
       });
     }
-
+    
     // UPDATE ADMIN WITHDRAWAL LIST
     function updateAdminWithdrawalList() {
       let allRequests = JSON.parse(localStorage.getItem("withdrawalRequests") || "[]");
@@ -445,7 +448,7 @@
         listElem.appendChild(li);
       });
     }
-
+    
     // ADMIN APPROVE WITHDRAWAL
     function adminApproveWithdrawal(id) {
       let allRequests = JSON.parse(localStorage.getItem("withdrawalRequests") || "[]");
@@ -460,7 +463,7 @@
       alert("Withdrawal approved.");
       if (currentUser) updateUserWithdrawalHistory();
     }
-
+    
     // ADMIN REJECT WITHDRAWAL
     function adminRejectWithdrawal(id) {
       let allRequests = JSON.parse(localStorage.getItem("withdrawalRequests") || "[]");
@@ -475,7 +478,7 @@
       alert("Withdrawal rejected.");
       if (currentUser) updateUserWithdrawalHistory();
     }
-
+    
     // WITHDRAWAL FUNCTION
     function withdrawBTC() {
       if (!currentUser) {
