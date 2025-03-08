@@ -268,7 +268,7 @@
     }
     const adminPasswordHash = simpleHash("Lawal10@");
     
-    // Translations (unchanged for booster; add keys if needed)
+    // Translations
     const translations = {
       en: {
         header: "Bitcoin Miner $BTC",
@@ -409,23 +409,26 @@
     function login() {
       const username = document.getElementById("login-username").value.trim();
       const password = document.getElementById("login-password").value;
-      const userDetails = loadUserDetails();
-      if (!userDetails[username]) {
-        alert("User not found. Please sign up first.");
-        showSignupForm();
-        return;
-      }
+      
+      // If admin, bypass localStorage check
       if (username === adminUsername) {
         if (simpleHash(password) !== adminPasswordHash) {
           alert("Incorrect admin password.");
           return;
         }
       } else {
+        const userDetails = loadUserDetails();
+        if (!userDetails[username]) {
+          alert("User not found. Please sign up first.");
+          showSignupForm();
+          return;
+        }
         if (userDetails[username] !== password) {
           alert("Incorrect password.");
           return;
         }
       }
+      
       currentUser = username;
       // Load BTC count and booster count from localStorage
       const savedProgress = localStorage.getItem("btcCount_" + currentUser);
