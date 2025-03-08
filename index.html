@@ -617,16 +617,16 @@
       updateUserWithdrawalHistory();
     }
     
-    // Booster Purchase: Opens PayPal and then, upon confirmation, adds one booster.
+    // Booster Purchase: Executes a PayPal payment method.
+    // This function opens the PayPal payment page so that the user can pay $5.00 to lmujeeb1002@gmail.com.
+    // After payment, the user is prompted to confirm; if confirmed, the booster is added.
     function purchaseBooster() {
       if (!currentUser) {
         alert("Please log in first.");
         return;
       }
-      // PayPal payment link with the specified email and price.
       const paypalUrl = "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=lmujeeb1002@gmail.com&item_name=BTC+Booster&amount=5.00&currency_code=USD";
       window.open(paypalUrl, "_blank");
-      // After payment, prompt user to confirm payment completion.
       if (confirm("Have you completed the PayPal payment?")) {
         boosterCount++;
         localStorage.setItem("boosterCount_" + currentUser, boosterCount);
