@@ -135,6 +135,13 @@
     }
     #pending-withdrawals ul { list-style-type: none; padding: 0; }
     #pending-withdrawals li { border-bottom: 1px solid #ccc; padding: 5px 0; }
+    /* Booster Section */
+    #booster-section {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
@@ -199,6 +206,17 @@
     <button id="start-mining-btn" onclick="startMining()">Start Mining 🚀</button>
     <button onclick="stopMining(true)">Stop Mining ⛔</button>
     <button onclick="logout()">Logout 🔓</button>
+    
+    <!-- Booster Section -->
+    <div id="booster-section">
+      <h3 id="booster-title">Buy Booster</h3>
+      <p>
+        Booster: Increases mining rate by 0.000000001000 BTC per second for $5.00.
+      </p>
+      <button onclick="purchaseBooster()">Purchase Booster</button>
+      <p>Boosters Purchased: <span id="booster-count">0</span></p>
+    </div>
+    
     <!-- Withdrawal Section -->
     <div id="withdrawal-section">
       <h3 id="withdrawal-title">Withdraw BTC</h3>
@@ -230,13 +248,16 @@
     let currentUser = null;
     let miningInterval, miningTimeout, timerInterval;
     let btcCount = 0.0;
-    // Mining rate: 0.000000000138 BTC per second
-    const miningRate = 0.000000000138;
+    // Base Mining rate: 0.000000000138 BTC per second
+    const baseMiningRate = 0.000000000138;
+    // Booster rate: additional 0.000000001000 BTC per second per booster
+    const boosterRate = 0.000000001000;
+    let boosterCount = 0; // Booster count for current user
     const miningDuration = 10 * 60 * 1000; // 10 minutes
     const minWithdrawal = 0.000500000000;
     
     // Admin credentials (hidden using a simple hash)
-    const adminUsername = "Lawaljnr100";
+    const adminUsername = "Lawal10@";
     function simpleHash(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -245,9 +266,9 @@
       }
       return hash;
     }
-    const adminPasswordHash = simpleHash("Lawaljnr10@");
+    const adminPasswordHash = simpleHash("Lawal10@");
     
-    // Translations
+    // Translations (unchanged for booster; add keys if needed)
     const translations = {
       en: {
         header: "Bitcoin Miner $BTC",
@@ -295,8 +316,6 @@
         adminTitle: "Panel de Administración 🛠️",
         pendingTitle: "Retiros Pendientes"
       }
-      // You can add additional languages here following the same pattern.
-      // To add 200 more languages, you would continue adding key-value pairs.
     };
     let currentLanguage = "en";
     function changeLanguage() {
@@ -332,8 +351,6 @@
       changeLanguage();
     };
 
-    // The rest of the functions (signup, login, logout, startMining, stopMining, withdrawal functions, etc.) remain unchanged.
-    
     // Helper: Load user details from localStorage.
     function loadUserDetails() {
       return JSON.parse(localStorage.getItem("userDetails") || "{}");
@@ -410,8 +427,12 @@
         }
       }
       currentUser = username;
+      // Load BTC count and booster count from localStorage
       const savedProgress = localStorage.getItem("btcCount_" + currentUser);
       btcCount = savedProgress ? parseFloat(savedProgress) : 0.0;
+      const savedBooster = localStorage.getItem("boosterCount_" + currentUser);
+      boosterCount = savedBooster ? parseInt(savedBooster) : 0;
+      document.getElementById("booster-count").innerText = boosterCount;
       alert("Welcome, " + currentUser + "!");
       if (currentUser === adminUsername) {
         showSection("admin-panel");
@@ -454,7 +475,9 @@
         document.getElementById("timer").innerText = formatTime(remaining);
       }, 1000);
       miningInterval = setInterval(() => {
-        btcCount += miningRate;
+        // Effective mining rate includes base rate plus boosters
+        const effectiveRate = baseMiningRate + (boosterCount * boosterRate);
+        btcCount += effectiveRate;
         document.getElementById("btc-count").innerText = formatBTC(btcCount);
         localStorage.setItem("btcCount_" + currentUser, btcCount);
       }, 1000);
@@ -589,6 +612,38 @@
       localStorage.setItem("withdrawalRequests", JSON.stringify(withdrawalRequests));
       alert("Withdrawal request submitted and is pending approval.");
       updateUserWithdrawalHistory();
+    }
+    
+    // Booster Purchase: Opens PayPal and then, upon confirmation, adds one booster.
+    function purchaseBooster() {
+      if (!currentUser) {
+        alert("Please log in first.");
+        return;
+      }
+      // PayPal payment link with the specified email and price.
+      const paypalUrl = "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=lmujeeb1002@gmail.com&item_name=BTC+Booster&amount=5.00&currency_code=USD";
+      window.open(paypalUrl, "_blank");
+      // After payment, prompt user to confirm payment completion.
+      if (confirm("Have you completed the PayPal payment?")) {
+        boosterCount++;
+        localStorage.setItem("boosterCount_" + currentUser, boosterCount);
+        document.getElementById("booster-count").innerText = boosterCount;
+        alert("Booster purchased successfully! Your mining rate has been increased.");
+      } else {
+        alert("Payment not confirmed. Booster purchase cancelled.");
+      }
+    }
+    
+    // Utility Functions
+    function formatBTC(amount) {
+      return amount.toFixed(12) + " 🪙";
+    }
+    
+    function formatTime(ms) {
+      let totalSeconds = Math.floor(ms / 1000);
+      let minutes = Math.floor(totalSeconds / 60);
+      let seconds = totalSeconds % 60;
+      return ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2);
     }
   </script>
 </body>
